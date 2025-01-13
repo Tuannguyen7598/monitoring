@@ -8,22 +8,32 @@ Dự án này triển khai một hệ thống giám sát (monitoring) đầy đ�
 - Mongo Exporter: Cung cấp metrics về MongoDB (opcounters, connections,…).
 - Blackbox Exporter: Cung cấp cơ chế giám sát các dịch vụ, endpoint (ICMP, HTTP, DNS,…).
 - Grafana: Tạo các biểu đồ (dashboard) và hiển thị metrics một cách trực quan.
+
+# Infrastructure 
+![images](monitoring.png)
+
 # Yêu cầu hệ thống
 Docker và Docker Compose được cài đặt sẵn.
 (Tùy chọn) Máy chủ hoặc môi trường ảo hóa có thể mở các cổng cần thiết (3000 cho Grafana, 9090 cho Prometheus, v.v…).
 
-Thiết lập dự án
+# Thiết lập dự án
 
 1. Tạo file .env từ .env.example
 Trong thư mục gốc của dự án, bạn sẽ thấy một file mẫu tên là .env.example. Hãy sao chép file này thành .env:
 
-`cp .env.example .env`
+```bash
+$ cp .env.example .env
+```
+
 Tiếp đó, mở file .env để điều chỉnh các cấu hình (nếu cần).
 
 2. Chạy Docker Compose
 Sau khi cấu hình .env xong, bạn chỉ cần chạy:
 
-`docker-compose up -d --build`
+```bash
+$ docker-compose up -d --build
+```
+
 Lệnh này sẽ tải các image cần thiết, khởi chạy các container:
 
 grafana
