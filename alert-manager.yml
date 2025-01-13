@@ -24,10 +24,7 @@ receivers:
           **Service:** {{ .CommonLabels.service }}
           **Instance:** {{ .CommonLabels.instance }}
           **Severity:** {{ .CommonLabels.severity }}
-          **Summary:** {{ .Annotations.summary }}
-          **Description:** {{ .Annotations.description }}
-          **Started At:** {{ .StartsAt }}
-          **Resolved At:** {{ .EndsAt }}
+
           
 
 inhibit_rules:
