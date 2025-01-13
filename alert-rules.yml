@@ -1,0 +1,12 @@
+groups:
+  - name: blackbox_alerts
+    rules:
+      - alert: BlackboxAPIStatus
+        expr: probe_http_status_code != 200
+        for: 1m
+        labels:
+          severity: critical
+          service: blackbox
+        annotations:
+          summary: "API status is not 200"
+          description: "The API being monitored by Blackbox Exporter returned status."

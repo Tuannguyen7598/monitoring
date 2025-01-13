@@ -1,0 +1,144 @@
+version: '3.7'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    env_file:
+      - .env
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./alert-rules.yml:/etc/prometheus/alert-rules.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9091:9091"
+    networks:
+      - test-monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    env_file:
+      - .env
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./granfana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    networks:
+      - test-monitoring
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    env_file:
+      - .env
+    volumes:
+      - ./alert-manager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    ports:
+      - "9093:9093"
+    networks:
+      - test-monitoring
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    env_file:
+      - .env
+    ports:
+      - "9100:9100"
+    networks:
+      - test-monitoring
+
+  blackbox-exporter:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox-exporter
+    env_file:
+      - .env
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    ports:
+      - "9115:9115"
+    networks:
+      - test-monitoring
+
+
+  mongo-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: mongo-exporter
+    env_file:
+      - .env
+    environment:
+      - MONGODB_URI=mongodb://${MONGO_USERNAME_EXPORTER}:${MONGO_PASSWORD_EXPORTER}@mongo:27017
+      - '--mongodb.global-conn-pool'
+      - '--collector.diagnosticdata'
+      - '--discovering-mode'
+    ports:
+      - "9216:9216"
+    depends_on:
+      - mongo
+    networks:
+      - test-monitoring
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    env_file:
+      - .env
+    environment:
+      - DATA_SOURCE_NAME=${MYSQL_USERNAME_EXPORTER}:${MYSQL_PASSWORD_EXPORTER}@(mysql:3306)/
+    ports:
+      - "9104:9104"
+    depends_on:
+      - mysql
+    command:
+      - "--mysqld.username=${MYSQL_USERNAME_EXPORTER}:${MYSQL_PASSWORD_EXPORTER}"
+      - "--mysqld.address=mysql:3306"
+    networks:
+      - test-monitoring
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    command: ["--auth"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-data:/data/db
+      - ./mongod.conf:/etc/mongo/mongod.conf:ro
+    networks:
+      - test-monitoring
+
+  mysql:
+    image: mysql:latest
+    container_name: mysql
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - test-monitoring
+
+volumes:
+  grafana-data:
+
+networks:
+  test-monitoring:
+    driver: bridge
