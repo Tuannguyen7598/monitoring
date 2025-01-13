@@ -1,4 +1,4 @@
-./grafana-data
-./mongo-data
-./mysql-data
+.grafana-data/
+.mongo-data/
+.mysql-data/
 .env

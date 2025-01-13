@@ -9,7 +9,7 @@ Dự án này triển khai một hệ thống giám sát (monitoring) đầy đ�
 - Blackbox Exporter: Cung cấp cơ chế giám sát các dịch vụ, endpoint (ICMP, HTTP, DNS,…).
 - Grafana: Tạo các biểu đồ (dashboard) và hiển thị metrics một cách trực quan.
 
-# Infrastructure 
+# Infrastructure
 ![images](monitoring.png)
 
 # Yêu cầu hệ thống
@@ -63,7 +63,7 @@ MySQL Exporter: ID 7362 (hoặc 6239, tùy sở thích)
 MongoDB (Percona): ID 2583
 Blackbox Exporter: ID 7587 (hoặc dashboard khác phù hợp)
 
-### Cách import:
+# Import dashboard
 
 Chọn Create (dấu +) > Import.
 Nhập “Dashboard ID” (VD: 1860), rồi nhấn “Load”.
@@ -71,27 +71,19 @@ Nhập “Dashboard ID” (VD: 1860), rồi nhấn “Load”.
 Bấm Import để hoàn tất.
 Dashboard sau đó sẽ xuất hiện trong danh sách Dashboard của Grafana.
 
-Cấu trúc thư mục (ví dụ)
-
-├── docker-compose.yml
-├── .env.example
-├── .env (sau khi copy từ .env.example)
-├── README.md
-└── ...
-Gỡ lỗi và xử lý sự cố
+# Gỡ lỗi và xử lý sự cố
 Grafana: Nếu không truy cập được localhost:3000, có thể cổng 3000 bị bận hoặc firewall chặn. Kiểm tra bằng docker ps xem container Grafana đã chạy chưa.
 Prometheus: Nếu localhost:9090 không hoạt động, kiểm tra logs của container Prometheus (docker logs prometheus).
 Exporter: Luôn kiểm tra logs khi có bất kỳ exporter nào không “UP”.
 
-### Kết luận
+# Kết luận
 Với các bước trên, bạn đã sở hữu một hệ thống monitoring cơ bản. Tùy vào nhu cầu, bạn có thể mở rộng thêm exporter khác, hoặc thêm nhiều dashboard chi tiết hơn trong Grafana.
 
-Chúc bạn thành công!
-
-### Tham khảo
-Grafana Official Docs
-Prometheus Official Docs
-Node Exporter
-MySQL Exporter
-MongoDB Exporter
-Blackbox Exporter
+# Tham khảo
+[Grafana Official Docs](https://grafana.com/docs/grafana/latest/).
+[Prometheus Official Docs](https://prometheus.io/docs/prometheus/latest/getting_started/).
+[Node Exporter](https://github.com/prometheus/node_exporter).
+[MySQL Exporter](https://github.com/prometheus/mysqld_exporter).
+[MongoDB Exporter](https://github.com/percona/mongodb_exporter).
+[Blackbox Exporter](https://github.com/prometheus/blackbox_exporter).
+[Alert Manager](https://github.com/prometheus/alertmanager).
