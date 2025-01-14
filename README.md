@@ -1,89 +1,168 @@
-## Monitoring Stack
-# Giới thiệu
-Dự án này triển khai một hệ thống giám sát (monitoring) đầy đủ, bao gồm:
+# Monitoring Stack
 
-- Prometheus: Thu thập và lưu trữ metrics.
-- Node Exporter: Cung cấp metrics về tài nguyên máy chủ (CPU, RAM, Disk,…).
-- MySQL Exporter: Cung cấp metrics về MySQL (queries, buffer, connections,…).
-- Mongo Exporter: Cung cấp metrics về MongoDB (opcounters, connections,…).
-- Blackbox Exporter: Cung cấp cơ chế giám sát các dịch vụ, endpoint (ICMP, HTTP, DNS,…).
-- Grafana: Tạo các biểu đồ (dashboard) và hiển thị metrics một cách trực quan.
+# Table of Contents
 
-# Infrastructure
+1. [Introduction](#introduction)  
+2. [Infrastructure Overview](#infrastructure-overview)  
+3. [System Requirements](#system-requirements)  
+4. [Setup Instructions](#setup-instructions)  
+   - [Create .env File](#1-create-env-file)
+   - [Run Docker Compose](#2-run-docker-compose)
+   - [Access Grafana](#3-access-grafana)
+   - [Create Dashboards](#4-create-dashboards)
+   - [Configure Notifications](#5-configure-notifications)
+5. [Troubleshooting](#troubleshooting)  
+6. [Production Deployment](#production-deployment)  
+7. [Conclusion](#conclusion)  
+8. [References](#references) 
+
+## Introduction
+
+This project implements a comprehensive monitoring system including tools for metrics collection, visualization, and alerting. The stack comprises:
+
+- Prometheus: Collects and stores metrics.
+- Node Exporter: Provides metrics about server resources (CPU, RAM, Disk, etc.).
+- MySQL Exporter: Provides metrics about MySQL (queries, buffer, connections, etc.).
+- Mongo Exporter: Provides metrics about MongoDB (opcounters, connections, etc.).
+- Blackbox Exporter: Provides mechanisms to monitor services and endpoints (ICMP, HTTP, DNS, etc.).
+- Grafana: Creates dashboards and visualizes metrics intuitively.
+
+## Infrastructure Overview
+
+The monitoring stack utilizes Docker containers to simplify deployment. The overall architecture is as follows:
 ![images](monitoring.png)
 
-# Yêu cầu hệ thống
-Docker và Docker Compose được cài đặt sẵn.
-(Tùy chọn) Máy chủ hoặc môi trường ảo hóa có thể mở các cổng cần thiết (3000 cho Grafana, 9090 cho Prometheus, v.v…).
+# Requirements
+1. Prerequisites:
 
-# Thiết lập dự án
+Installed Docker and Docker Compose.
+Ports open for required services:
+3000 for Grafana
+9090 for Prometheus
+(Configurable via .env)
 
-1. Tạo file .env từ .env.example
-Trong thư mục gốc của dự án, bạn sẽ thấy một file mẫu tên là .env.example. Hãy sao chép file này thành .env:
+2. Optional:
 
+A server or virtualization environment that supports exposing these ports.
+SSL and firewall configurations for production security.
+
+## Setup Instructions
+
+1. Create .env File
+
+In the project's root directory, you will find a sample file named .env.example. Copy this file and rename it to .env:
 ```bash
 $ cp .env.example .env
 ```
+Then, open the .env file to adjust configurations (if necessary).
 
-Tiếp đó, mở file .env để điều chỉnh các cấu hình (nếu cần).
+2. Run Docker Compose
 
-2. Chạy Docker Compose
-Sau khi cấu hình .env xong, bạn chỉ cần chạy:
-
+After configuring .env, simply execute:
 ```bash
 $ docker-compose up -d --build
 ```
+This command will pull the necessary images and start the containers:
 
-Lệnh này sẽ tải các image cần thiết, khởi chạy các container:
+- grafana.
+- prometheus.
+- node-exporter.
+- mysql-exporter.
+- mongo-exporter.
+- blackbox-exporter.
 
-grafana
-prometheus
-node-exporter
-mysql-exporter
-mongo-exporter
-blackbox-exporter
-Lưu ý: Quá trình pull image và khởi động container có thể mất một ít thời gian tùy tốc độ mạng và cấu hình máy.
+Note: The process of pulling images and starting containers may take some time, depending on your network speed and machine configuration.
 
-3. Truy cập Grafana
-Mặc định, Grafana lắng nghe (listen) trên cổng 3000.
-Hãy mở trình duyệt và truy cập:
-Link:[`http://localhost:3000`]
-Tài khoản của Grafana đã được config trong .env
+3. Access Grafana
 
-4. Tạo Dashboard trong Grafana
-Sau khi đăng nhập thành công, để tạo dashboard, bạn có thể:
+- By default, Grafana listens on port 3000.
+- Open your browser and navigate to: [http://localhost:3000].
+- The Grafana account credentials are configured in the .env file.
 
-Tự tạo thủ công (Create > Dashboard > Add new panel).
-Import Dashboard có sẵn từ Grafana.com hoặc file JSON.
-Import Dashboard bằng “Dashboard ID”
-Ví dụ, bạn có thể thử một số dashboard phổ biến:
+4. Create Dashboards in Grafana
 
-Node Exporter Full: ID 1860
-MySQL Exporter: ID 7362 (hoặc 6239, tùy sở thích)
-MongoDB (Percona): ID 2583
-Blackbox Exporter: ID 7587 (hoặc dashboard khác phù hợp)
+- After successfully logging in, to create dashboards, you can:
 
-# Import dashboard
+a, Manually create dashboards 
 
-Chọn Create (dấu +) > Import.
-Nhập “Dashboard ID” (VD: 1860), rồi nhấn “Load”.
-Ở phần Options, chọn data source phù hợp (thông thường là “Prometheus”).
-Bấm Import để hoàn tất.
-Dashboard sau đó sẽ xuất hiện trong danh sách Dashboard của Grafana.
+- On the Grafana interface: (Create > Dashboard > Add new panel).
+- Then configure the dashboards manually based on the list of metrics.
 
-# Gỡ lỗi và xử lý sự cố
-Grafana: Nếu không truy cập được localhost:3000, có thể cổng 3000 bị bận hoặc firewall chặn. Kiểm tra bằng docker ps xem container Grafana đã chạy chưa.
-Prometheus: Nếu localhost:9090 không hoạt động, kiểm tra logs của container Prometheus (docker logs prometheus).
-Exporter: Luôn kiểm tra logs khi có bất kỳ exporter nào không “UP”.
+b, Import from a template file  
 
-# Kết luận
-Với các bước trên, bạn đã sở hữu một hệ thống monitoring cơ bản. Tùy vào nhu cầu, bạn có thể mở rộng thêm exporter khác, hoặc thêm nhiều dashboard chi tiết hơn trong Grafana.
+- Import pre-existing dashboards from JSON files (e.g., the Mongo dashboard in /granfana_conf/dashboards/mongo-dashboard.json).
 
-# Tham khảo
-[Grafana Official Docs](https://grafana.com/docs/grafana/latest/).
-[Prometheus Official Docs](https://prometheus.io/docs/prometheus/latest/getting_started/).
-[Node Exporter](https://github.com/prometheus/node_exporter).
-[MySQL Exporter](https://github.com/prometheus/mysqld_exporter).
-[MongoDB Exporter](https://github.com/percona/mongodb_exporter).
-[Blackbox Exporter](https://github.com/prometheus/blackbox_exporter).
-[Alert Manager](https://github.com/prometheus/alertmanager).
+c,  Use the open-source community
+
+- For example, you can try popular dashboards from the Grafana community by importing dashboards using their "Dashboard ID":
+
++, Node Exporter Full: ID 1860
+
++, MySQL Exporter: ID 7362 (or 6239, depending on your preference)
+
++, MongoDB (Percona): ID 2583
+
++, Blackbox Exporter: ID 7587 (or other suitable dashboards)
+
+5. Configure Notifications
+
+a, Using  Alert Manager
+
+- Define alert rules in Prometheus (/prometheus_conf/prometheus.yml).
+- Configure Alert Manager with routing rules (/alertmanager_conf/alert-manager.yml).
+- Alerts can be viewed in Grafana under Alerting > Alert rules.
+
+b, Using Grafana without Alert Manager
+
+- Set up notification channels via Configuration > Notification Channels.
+- Define alerts directly on Grafana panels in your dashboards.
+- Supported channels include:
+
++, Email
+
++, Slack
+
++, Webhook
+
++, Microsoft Teams, and more.
+
+## Debugging and Troubleshooting
+
+- If you see a Ports are not available error, it means a process on your local machine is already using a port that the system needs. The solution is to check which instance in the Docker Compose file is using that port and change the exposed port to avoid conflicts.
+- Grafana: If you cannot access localhost:3000, the port may be occupied, or the firewall may be blocking it. Check if the Grafana container is running using docker ps.
+- Prometheus: If localhost:9090 is not working, check the Prometheus container logs (docker logs prometheus).
+- Exporter: Always check logs if any exporter is not “UP.”
+
+## Production Deployment
+
+For production, ensure secure communication between Prometheus and exporters, especially when dealing with multiple servers:
+
+1. Security Mechanisms:
+
+- Reverse Proxy with Authentication
+- SSL Encryption
+- Firewalls
+- Virtual Private Cloud (VPC)
+
+2. Exporter Deployment:
+
+- Deploy exporters on individual servers.
+- Use private networking or secure public API access
+
+## Conclusion
+
+With this guide, you’ve set up a basic monitoring system. Depending on your requirements, you can:
+
+- Add more exporters for extended monitoring.
+- Create detailed and customized Grafana dashboards.
+This stack offers a scalable and modular solution to meet diverse monitoring needs.
+
+## References
+
+- [Grafana Official Docs](https://grafana.com/docs/grafana/latest/).
+- [Prometheus Official Docs](https://prometheus.io/docs/prometheus/latest/getting_started/).
+- [Node Exporter](https://github.com/prometheus/node_exporter).
+- [MySQL Exporter](https://github.com/prometheus/mysqld_exporter).
+- [MongoDB Exporter](https://github.com/percona/mongodb_exporter).
+- [Blackbox Exporter](https://github.com/prometheus/blackbox_exporter).
+- [Alert Manager](https://github.com/prometheus/alertmanager).
